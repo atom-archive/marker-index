@@ -5,13 +5,13 @@ import {traverse, traversal, compare, isZero, max, format as formatPoint} from '
 import './helpers/add-to-html-methods'
 
 describe('MarkerIndex', () => {
-  it('maintains correct marker positions during randomized insertions and mutations', function () {
+  it.only('maintains correct marker positions during randomized insertions and mutations', function () {
     this.timeout(Infinity)
 
     let seed, seedMessage, random, markerIndex, markers, idCounter
 
     runTests(JSMarkerIndex)
-    runTests(NativeMarkerIndex)
+    // runTests(NativeMarkerIndex)
 
     function runTests (MarkerIndex) {
       for (let i = 0; i < 1000; i++) {
@@ -48,6 +48,7 @@ describe('MarkerIndex', () => {
         testFindEndingIn()
         testFindStartingAt()
         testFindEndingAt()
+        testFindMaximalIntersecting()
       }
     }
 
@@ -278,6 +279,24 @@ describe('MarkerIndex', () => {
         }
 
         let actualIds = markerIndex.findEndingAt(point)
+        assert.equal(actualIds.size, expectedIds.size, seedMessage)
+        for (let id of expectedIds) {
+          assert(actualIds.has(id), `Expected ${id} to be in set. ` + seedMessage)
+        }
+      }
+    }
+
+    function testFindMaximalIntersecting () {
+      for (let i = 0; i < 10; i++) {
+        let [start, end] = getRange()
+
+        let expectedIds = new Set()
+        markerIndex.findIntersecting(start, end).forEach(function (id) {
+          if (markerIndex.findContaining(id).size === 0) expectedIds.add(id)
+        })
+
+        let actualIds = markerIndex.findMaximalIntersecting(start, end)
+
         assert.equal(actualIds.size, expectedIds.size, seedMessage)
         for (let id of expectedIds) {
           assert(actualIds.has(id), `Expected ${id} to be in set. ` + seedMessage)

@@ -237,6 +237,16 @@ export default class MarkerIndex {
     return this.findEndingIn(position, position)
   }
 
+  findMaximalIntersecting (start, end) {
+    let result = new Set()
+    this.findIntersecting(start, end).forEach(id => {
+      if (this.findContaining(id).size === 0) {
+        result.add(id)
+      }
+    })
+    return result
+  }
+
   getNodePosition (node) {
     let position = node.leftExtent
     while (node.parent) {

@@ -208,6 +208,50 @@ export default class Iterator {
     }
   }
 
+  findMaximalIntersecting (start, end, resultSet) {
+    this.reset()
+    if (!this.currentNode) return
+
+    let containingStart
+
+    while (true) {
+      let comparison = compare(start, this.currentNodePosition)
+
+      if (comparison < 0) {
+        if (this.currentNode.leftMarkerIds.size > 0) {
+          containingStart = new Set(this.currentNode.leftMarkerIds)
+          break
+        } else if (this.currentNode.left) {
+          this.descendLeft()
+        } else {
+          break
+        }
+      } else if (comparison === 0) {
+        containingStart = new Set()
+        let {leftMarkerIds, rightMarkerIds} = this.currentNode
+        leftMarkerIds.forEach(function (id) {
+          if (rightMarkerIds.has(id)) containingStart.add(id)
+        })
+        break
+      } else { // comparison > 0
+        if (this.currentNode.rightMarkerIds.size > 0) {
+          containingStart = new Set(this.currentNode.rightMarkerIds)
+          break
+        } else if (this.currentNode.right) {
+          this.descendRight()
+        } else {
+          break
+        }
+      }
+    }
+
+    containingStart = containingStart || new Set()
+
+    if (containingStart.size > 1) {
+      this.seekToMinimalStartNode(containingStart)
+    }
+  }
+
   dump () {
     this.reset()
 
